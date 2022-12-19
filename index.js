@@ -31,6 +31,7 @@ app.use(session({
 const User = require('./models/User')
 
 // Users Routes
+app.get("/logout", userController.logout)
 app.get("/users/list/all", userController.listAll);
 app.delete("/users/delete/:email", userController.delete);
 
