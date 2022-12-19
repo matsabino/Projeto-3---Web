@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto 3 - Home</title>
+    <!-- CSS only -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+</head>
+
+<body>
+    
+    <main >
+
+        <div class="container mt-3 text-center">
+            
+            <form method="post" id="form">
+                <div class="col-md-12">
+                    <div class="alert alert-primary text-center">
+                        Cadastro de usuários
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div id="error">
+
+                    </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <input type="text" class="form-control" placeholder="Nome Completo" name="name" id="name">
+                  </div>
+                  <div class="col">
+                    <input type="email" class="form-control" placeholder="E-mail" name="email" id="email">
+                  </div>
+                  <div class="col">
+                    <input type="password" class="form-control" placeholder="Senha" name="password" id="password">
+                  </div>
+                </div>
+                <div class="mt-4">
+                    <button class="btn btn-primary" onClick="createUser()">Adicionar usuário</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="alert alert-success text-center">
+                        Lista de usuários
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <table class="table text-center">
+                        <thead>
+                          <tr>
+                            <th scope="col">Nome</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Ações</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                         
+                        </tbody>
+                      </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+    <script>
+        const endpoint = "http://localhost:3000"; // Caminho curto para a API
+        const form = document.getElementById('form');
+        const name = document.getElementById('name');
+        const email = document.getElementById('email');
+        const password = document.getElementById('password');
+
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+        })
+        
+        function createUser(){
+            axios.post(endpoint + "/auth/register", {
+                name: name.value,
+                email: email.value,
+                password: password.value
+            })
+            .then(function(response){
+                getUsers();
+                form.reset();
+            })
+            .catch(function(error){
+                console.log(error);
+
+                document.getElementById("error").innerHTML = `
+                        <div class="alert alert-danger text-center"><b>Erro encontrado: </b> ${error.response.data.msg}</div>
+                    `;
+            })
+        };
+
+        function getUsers(){
+            axios.get(endpoint + "/users/list/all")
+            .then(function(response){
+                loadUsers(response.data);
+            })
+            .catch(function(error){
+                console.log(error);
+            })
+        }
+
+        function loadUsers(result){
+            let results = result.map(function (e){
+                let name = e.name;
+                let email = e.email;
+
+                return `
+                    <tr>
+                        <td>${name}</td>
+                        <td>${email}</td>
+                        <td><button class="btn btn-danger" onClick="deleteUser('${email}')">Deletar usuário</button></td>
+                    </tr>
+                `;
+            })
+
+            document.querySelector("tbody").innerHTML = results.join('\n');
+
+            
+        }
+
+        function deleteUser(user){
+            axios.delete(endpoint + "/users/delete/" + user)
+            .then(function(response){
+                getUsers();
+            })
+            .catch(function(error){
+                console.log(error)
+            })
+        }
+
+        getUsers();
+
+    </script>
+</body>
+</html>
