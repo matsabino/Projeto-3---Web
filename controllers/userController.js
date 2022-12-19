@@ -23,3 +23,9 @@ exports.delete = async (req, res) => {
         msg: "Usuário deletado com sucesso"
     })
 }
+
+exports.logout = async (req, res) => {
+    req.session.destroy((err) => {
+        res.redirect('/') // will always fire after session is destroyed
+      })
+}
